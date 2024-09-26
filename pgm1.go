@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"strings"
 	"strconv"
+	"sort"
 )
 
 type Error struct {
@@ -31,6 +32,10 @@ func (p Player) BattingAverage() float64 {
 
 func (p Player) SluggingPercentage() float64 {
 	return float64(p.singles + (2 * p.doubles) + (3 * p.triples) + (4 * p.homeRuns)) / float64(p.atBats)
+}
+
+func (p Player) OnBasePercentage() float64 {
+	return float64(p.singles + p.doubles + p.triples + p.homeRuns + p.walks + p.hitByPitch) / float64(p.plateAppearances)
 }
 
 func ReadFile(fileName string) ([]Player, []Error) {
@@ -139,6 +144,12 @@ func ReadFile(fileName string) ([]Player, []Error) {
 	return players, errors
 }
 
+type BySlugging []Player
+
+func (a BySlugging) Len() int { return len(a) }
+func (a BySlugging) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a BySlugging) Less(i, j int) bool { return a[i].SluggingPercentage() > a[j].SluggingPercentage() }
+
 func main() {
 
 	var fileName string
@@ -149,14 +160,21 @@ func main() {
 
 	players, errors := ReadFile(fileName)
 
+	numberPlayers := len(players)
+
+	fmt.Printf("\n\nBaseball player stats report --- %d players processed\n", numberPlayers)
+	fmt.Println("Player Name     Average    Slugging      On Base%")
+	fmt.Println("-------------------------------------------------")
+
+	sort.Sort(BySlugging(players))
+
 	for _, player := range players {
-		fmt.Printf("%s %s %.3f %.3f\n", player.firstName, player.lastName, player.BattingAverage(), player.SluggingPercentage())
+		fmt.Printf("%s, %-5s %10.3f %10.3f %10.3f\n", player.lastName, player.firstName, player.BattingAverage(), player.SluggingPercentage(), player.OnBasePercentage())
 	}
+
+	fmt.Println("\n\nErrors encountered:")
 
 	for _, err := range errors {
 		fmt.Println(err.message)
 	}
-
-
-
 }
