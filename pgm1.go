@@ -1,3 +1,14 @@
+/*
+	Author: Colby McClure
+	Course: CS-424-01
+	Assignment: Programming Assignment 1
+	System Info: go version go1.23.1 windows/amd64
+
+	Description: 	This program reads an input file containing baseball player statistics and calculates the batting average, 
+					slugging percentage, and on base percentage for each player in the input file. The program then 
+					prints a report of the player statistics and any errors encountered while reading and parsing the file.
+*/
+
 package main
 
 // Import statements needed 
@@ -93,7 +104,8 @@ func ReadFile(fileName string) ([]Player, []Error) {
 
 		// If there is an error converting the plate appearances to an integer, print an error message and process the next line
 		if err != nil {
-			fmt.Println("Invalid plate appearances: ", fields[2])
+			err := fmt.Sprintf("line %d: %s; Error: Invalid plate appearances", lineNumber, lastName)
+			errors = append(errors, Error{err})
 			continue
 		}
 		
